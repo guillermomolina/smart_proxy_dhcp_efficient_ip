@@ -1,0 +1,5 @@
+---
+:enabled: true
+:username: 'ipmadmin'
+:password: 'admin'
+:server_ip: '3.65.1.16'

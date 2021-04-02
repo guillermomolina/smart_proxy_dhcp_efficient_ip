@@ -1,0 +1,3 @@
+---
+:enabled: http
+:use_provider: dhcp_efficient_ip

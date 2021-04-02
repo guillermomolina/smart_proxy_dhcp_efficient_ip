@@ -1,0 +1,4 @@
+---
+:trusted_hosts: ['*']
+:bind_host: ['*']
+:http_port: 4567

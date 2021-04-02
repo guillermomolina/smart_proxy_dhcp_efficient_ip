@@ -1,0 +1,359 @@
+{
+	"info": {
+		"_postman_id": "154b6672-c1f5-4e0d-86f8-23b263c61146",
+		"name": "Smart Proxy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"function isNewerVersionOrEqual (oldVer, newVer) {",
+							"  if (oldVer === newVer) return true",
+							"  const oldParts = oldVer.split('.')",
+							"  const newParts = newVer.split('.')",
+							"  for (var i = 0; i < newParts.length; i++) {",
+							"    const a = ~~newParts[i] ",
+							"    const b = ~~oldParts[i]",
+							"    if (a > b) return true",
+							"    if (a < b) return false",
+							"  }",
+							"  return false",
+							"}",
+							"",
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test(\"Smart proxy version is correct\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(isNewerVersionOrEqual('2.3.0', responseJson.version)).to.be.true",
+							"});",
+							"",
+							"pm.test(\"DHCP version is correct\", function () {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(isNewerVersionOrEqual('2.3.0', responseJson.modules.dhcp)).to.be.true",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/version",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"version"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subnet info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"const schema = {",
+							"    \"type\": \"object\",",
+							"    \"properties\": {",
+							"        \"reservations\": {",
+							"            \"type\": \"array\",",
+							"            \"items\": {",
+							"                \"properties\": {",
+							"                    \"name\": { \"type\": \"string\" },",
+							"                    \"ip\": { \"type\": \"string\" },",
+							"                    \"mac\": { \"type\": \"string\" },",
+							"                    \"subnet\": { \"type\": \"string\" },",
+							"                    \"type\": { \"type\": \"string\" },",
+							"                    \"deleteable\": { \"type\": \"boolean\" },",
+							"                }",
+							"            },",
+							"            \"required\": [\"name\", \"ip\", \"mac\", \"subnet\", \"type\", \"deleteable\"]",
+							"",
+							"        },",
+							"        \"leases\": {",
+							"            \"type\": \"array\"",
+							"        }",
+							"    },",
+							"    \"required\": [\"reservations\", \"leases\"]",
+							"};",
+							"",
+							"pm.test('Response structure is correct', function() {",
+							"  pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/dhcp/10.10.0.0",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dhcp",
+						"10.10.0.0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subnets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"const schema = {",
+							"    \"type\": \"array\",",
+							"    \"items\": {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"network\": { \"type\": \"string\" },",
+							"            \"netmask\": { \"type\": \"string\" },",
+							"            \"options\": { \"type\": \"object\" },",
+							"        },",
+							"        \"required\": [\"network\", \"netmask\", \"options\"]",
+							"    }",
+							"};",
+							"",
+							"pm.test('Response structure is correct', function() {",
+							"  pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/dhcp",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dhcp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unused IP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"const schema = {",
+							"    \"type\": \"object\",",
+							"    \"properties\": {",
+							"        \"ip\": { \"type\": \"string\" }",
+							"    },",
+							"    \"required\": [\"ip\"]",
+							"};",
+							"",
+							"pm.test('Response structure is correct', function() {",
+							"  pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"const ipFormat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/",
+							"",
+							"pm.test('IP address has proper format', function() {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.ip).to.match(ipFormat)",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/dhcp/192.168.0.0/unused_ip?from=192.168.0.2&to=192.168.0.150",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dhcp",
+						"192.168.0.0",
+						"unused_ip"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "192.168.0.2"
+						},
+						{
+							"key": "to",
+							"value": "192.168.0.150"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create record",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/dhcp/192.168.0.0?network=192.168.0.0&ip=192.168.0.25&mac=9f:30:d3:97:f1:cf&name=Cream",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dhcp",
+						"192.168.0.0"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "192.168.0.0"
+						},
+						{
+							"key": "ip",
+							"value": "192.168.0.25"
+						},
+						{
+							"key": "mac",
+							"value": "9f:30:d3:97:f1:cf"
+						},
+						{
+							"key": "name",
+							"value": "Cream"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete record",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status response test', function() {",
+							"    pm.response.to.have.status(200);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://{{URL}}/dhcp/192.168.0.0/ip/192.168.0.25",
+					"protocol": "http",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"dhcp",
+						"192.168.0.0",
+						"ip",
+						"192.168.0.25"
+					],
+					"query": [
+						{
+							"key": "ip",
+							"value": "192.168.0.25",
+							"disabled": true
+						},
+						{
+							"key": "site_name",
+							"value": "Local",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "localhost:8000"
+		}
+	]
+}

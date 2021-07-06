@@ -14,7 +14,7 @@ module Proxy
         # Settings not listed under default_settings are considered optional and by default have nil value.
         # default_settings :required_setting => 'default_value'
 
-        requires :dhcp, '>= 2.3'
+        requires :dhcp, '>= 2.1'
 
         # Verifies that a file exists and is readable.
         # Uninitialized optional settings will not trigger validation errors.

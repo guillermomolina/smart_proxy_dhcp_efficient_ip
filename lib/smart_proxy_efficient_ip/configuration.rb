@@ -11,7 +11,7 @@ module Proxy
         def load_dependency_injection_wirings(container_instance, settings)
           container_instance.dependency :connection, (lambda do
             ::SOLIDserver::SOLIDserver.new(
-              settings[:server_ip],
+              settings[:server_id],
               settings[:username],
               settings[:password]
             )

@@ -10,7 +10,7 @@ class ConfigurationTest < Test::Unit::TestCase
     @settings = {
       username: 'user',
       password: 'password',
-      server_id: '10.10.10.10'
+      server_ip: '10.10.10.10'
     }
     @container = ::Proxy::DependencyInjection::Container.new
     Proxy::DHCP::EfficientIp::Configuration.new.load_dependency_injection_wirings(@container, @settings)

@@ -7,7 +7,7 @@ module Proxy
       class Plugin < ::Proxy::Provider
         plugin :dhcp_efficient_ip, ::Proxy::DHCP::EfficientIp::VERSION
 
-        validate_presence :username, :password, :server_ip
+        validate_presence :username, :password, :server_id
 
         # Settings listed under default_settings are required.
         # An exception will be raised if they are initialized with nil values.

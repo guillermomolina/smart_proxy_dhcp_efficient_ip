@@ -103,7 +103,7 @@ module Proxy
           record_result   = matching_record.map{|record|}
             reserv = build_reservation(subnet, record_result)
             reserv unless reserv.nil?
-          end
+          #end
         end
 
         def add_record(params)

@@ -98,8 +98,10 @@ module Proxy
           return [] if records.empty?
           subnet = find_subnet(subnet_address)
 
-          records.filter_map do |record|
-            reserv = build_reservation(subnet, record)
+          #records.filter_map do |record|
+          matching_record = records.select{|record|}
+          record_result   = matching_record.map{|record|}
+            reserv = build_reservation(subnet, record_result)
             reserv unless reserv.nil?
           end
         end

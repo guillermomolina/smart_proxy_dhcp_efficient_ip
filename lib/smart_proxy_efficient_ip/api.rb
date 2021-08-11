@@ -76,9 +76,10 @@ module Proxy
 
           connection.ip_address_add(
             site_name: subnet['site_name'],
-            ip_addr: params['ip'],
+            hostaddr: params['ip'],
             mac_addr: params['mac'],
-            name: params['name']
+            name: params['name'],
+            ip_class_parameters: {'name':'dhcpstatic', 'value':'1', 'inheritance':'set', 'propagation':'restrict'}
           )
         end
 

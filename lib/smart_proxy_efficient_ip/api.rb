@@ -79,7 +79,14 @@ module Proxy
             hostaddr: params['ip'],
             mac_addr: params['mac'],
             name: params['name'],
-            ip_class_parameters: {'name':'dhcpstatic', 'value':'1', 'inheritance':'set', 'propagation':'restrict'}
+            ip_class_parameters: {
+                'dhcpstatic':1,
+                'inheritance':'set',
+                'propagation':'restrict',
+                'dns_update':1,
+                'persistent_dns_rr':1,
+                'use_ipam_name':1
+                }
           )
         end
 

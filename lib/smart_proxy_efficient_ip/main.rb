@@ -35,13 +35,12 @@ module Proxy
          # result.filter_map do |subnet|
           matching_subnet = result.select{|subnet|}
           subnet_result   = matching_subnet.map{|subnet|}
-            address = subnet_result['start_hostaddr']
-            subnet_size = subnet_result['subnet_size'].to_i
-            netmask = SIZE_TO_MASK[subnet_size]
+          address = subnet_result['start_hostaddr']
+          subnet_size = subnet_result['subnet_size'].to_i
+          netmask = SIZE_TO_MASK[subnet_size]
 
-            if subnet_size >= 1 && managed_subnet?("#{address}/#{netmask}")
-              Proxy::DHCP::Subnet.new(address, netmask)
-            end
+          if subnet_size >= 1 && managed_subnet?("#{address}/#{netmask}")
+            Proxy::DHCP::Subnet.new(address, netmask)
           end
         end
 

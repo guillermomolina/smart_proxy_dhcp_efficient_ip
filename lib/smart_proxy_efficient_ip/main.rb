@@ -117,6 +117,11 @@ module Proxy
           api.delete_record(record)
         end
 
+        def del_record_by_ip(subnet_address, ip)
+          logger.debug("Deleting record: #{ip}")
+          api.delete_record_by_ip(subnet_address, ip)
+        end
+
         private
 
         attr_reader :api, :managed_subnets

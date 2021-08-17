@@ -92,6 +92,15 @@ module Proxy
           )
         end
 
+        def delete_record_by_ip(network_address, ip)
+          subnet = find_subnet(network_address)
+
+          connection.ip_address_delete(
+            hostaddr: ip,
+            site_name: subnet['site_name'],
+          )
+        end
+
         private
 
         def parse(response)

@@ -92,7 +92,7 @@ module Proxy
           )
         end
 
-        def delete_record_by_ip(network_address, ip)
+        def delete_records_by_ip(network_address, ip)
           subnet = find_subnet(network_address)
 
           connection.ip_address_delete(

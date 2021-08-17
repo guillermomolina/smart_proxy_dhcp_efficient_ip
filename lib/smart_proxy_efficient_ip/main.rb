@@ -117,9 +117,9 @@ module Proxy
           api.delete_record(record)
         end
 
-        def del_record_by_ip(subnet_address, ip)
+        def del_records_by_ip(subnet_address, ip)
           logger.debug("Deleting record: #{ip}")
-          api.delete_record_by_ip(subnet_address, ip)
+          api.delete_records_by_ip(subnet_address, ip)
         end
 
         private

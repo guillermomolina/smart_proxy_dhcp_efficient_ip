@@ -4,8 +4,9 @@ module Proxy
       class Api
         attr_reader :connection
 
-        def initialize(connection)
+        def initialize(connection, address_type)
           @connection = connection
+          @address_type = address_type
         end
 
         def find_subnet(network_address)
@@ -59,21 +60,37 @@ module Proxy
         end
 
         def leases(network_address)
+          # grab the subnet information where the leases exist
           subnet = find_subnet(network_address)
-          leases = connection.ip_address_list(
-            # where: "subnet_id=#{subnet['subnet_id']} and dhcplease_id > 0"
+
+          #Perform gets based on address_type
+          if address_type.eql? "dhcp"
+            # DHCP IP Assignments
+            leases = connection.ip_address_list(
+              where: "subnet_id=#{subnet['subnet_id']} and dhcplease_id > 0"
+            )
+          elsif address_type.eql? "static"
+            # Static IP Assignments
+            leases = connection.ip_address_list(
             tags: "ip.dhcpstatic",
-            where: "subnet_id=#{subnet['subnet_id']} and (dhcplease_id > 0 or tag_ip_dhcpstatic='1'1)"
-          )
-          lease_ids = parse(connection.ip_address_list(
-            where: "subnet_id=#{subnet['subnet_id']} and dhcplease_id > 0"
-          ).body).map { |r| r['dhcplease_id'] }
+            where: "subnet_id=#{subnet['subnet_id']} and tag_ip_dhcpstatic='1'"
+            )
+          end
 
-          result = connection.dhcp_lease_list(
-            where: "dhcplease_id IN (#{lease_ids})"
-          )
+          if leases.code == 200
+            lease_ids = parse(leases.body)
+            lease_ids = parse(connection.ip_address_list(
+              where: "subnet_id=#{subnet['subnet_id']} and dhcplease_id > 0"
+            ).body).map { |r| r['dhcplease_id'] }
 
-          parse(result.body)
+            result = connection.dhcp_lease_list(
+              where: "dhcplease_id IN (#{lease_ids})"
+            )
+            parse(result.body)
+          elsif leases.code == 204
+            #no content returned
+            return []
+          end
         end
 
         def add_record(params)

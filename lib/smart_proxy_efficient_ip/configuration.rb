@@ -19,7 +19,8 @@ module Proxy
 
           container_instance.dependency :api, (lambda do
             ::Proxy::DHCP::EfficientIp::Api.new(
-              container_instance.get_dependency(:connection, settings[:address_type])
+              container_instance.get_dependency(:connection),
+              settings[:address_type]
             )
           end)
 

@@ -122,6 +122,14 @@ module Proxy
           api.delete_records_by_ip(subnet_address, ip)
         end
 
+        def del_record_by_mac(network_address, mac)
+          logger.debug("Deleting record with mac address: #{mac}")
+          subnet = get_subnet(network_address)
+          record = api.find_record(mac)
+
+          api.delete_record(record["site_name"], record["hostaddr"])
+        end
+
         private
 
         attr_reader :api, :managed_subnets

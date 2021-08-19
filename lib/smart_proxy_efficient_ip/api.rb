@@ -3,6 +3,8 @@ module Proxy
     module EfficientIp
       class Api
         attr_reader :connection
+        attr_reader :address_type
+        attr_reader :logger
 
         def initialize(connection, address_type)
           @connection = connection
@@ -15,6 +17,17 @@ module Proxy
             limit: 1
           )
           parse(result.body)&.first
+        end
+
+        def find_subnet_by_id(subnet_id)
+          result = connection.ip_subnet_list(
+            where: "subnet_id='#{subnet_id}'"
+          )
+          if result.code == 200
+            parse(result.body)&.first
+          else
+            return []
+          end
         end
 
         def subnets
@@ -105,12 +118,10 @@ module Proxy
           )
         end
 
-        def delete_record(record)
-          subnet = find_subnet(record.subnet.network)
-
+        def delete_record(site_name, ip_to_delete)
           connection.ip_address_delete(
-            hostaddr: record.ip,
-            site_name: subnet['site_name'],
+            hostaddr: ip_to_delete,
+            site_name: site_name,
           )
         end
 

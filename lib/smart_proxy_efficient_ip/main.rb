@@ -6,7 +6,6 @@ module Proxy
   module DHCP
     module EfficientIp
       class Provider < ::Proxy::DHCP::Server
-        alias_method :find_record_by_mac, :find_record
         alias_method :find_record_by_ip, :find_record
 
         def initialize(api, managed_subnets)
@@ -92,6 +91,15 @@ module Proxy
           record ? build_reservation(subnet, record) : nil
         end
 
+        def find_record_by_mac(subnet_address, mac_address)
+          logger.debug("Finding record for subnet:#{subnet_address} and mac address:#{mac_address}")
+
+          subnet = find_subnet(subnet_address)
+          record = api.find_record(mac_address)
+
+          record ? build_reservation(subnet, record) : nil
+        end
+
         def find_records_by_ip(subnet_address, ip_or_mac)
           logger.debug("Finding records by address: #{ip_or_mac}")
 
@@ -142,6 +150,11 @@ module Proxy
             record['name'], record['hostaddr'], record['mac_addr'], subnet, opts
           )
         end
+
+        def build_subnet(subnet_address, network_mask)
+
+        end
+
       end
     end
   end

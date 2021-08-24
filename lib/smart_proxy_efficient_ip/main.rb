@@ -91,12 +91,19 @@ module Proxy
           record ? build_reservation(subnet, record) : nil
         end
 
+        def find_record_by_ip(subnet_address, ip_address)
+          logger.debug("Finding record for subnet:#{subnet_address} and address:#{ip_or_mac_address}")
+
+          subnet = find_subnet(subnet_address)
+          record = api.find_record(ip_address)
+          record ? build_reservation(subnet, record) : nil
+        end
+
         def find_record_by_mac(subnet_address, mac_address)
           logger.debug("Finding record for subnet:#{subnet_address} and mac address:#{mac_address}")
 
           subnet = find_subnet(subnet_address)
           record = api.find_record(mac_address)
-
           record ? build_reservation(subnet, record) : nil
         end
 

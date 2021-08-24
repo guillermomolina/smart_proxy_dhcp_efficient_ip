@@ -6,7 +6,6 @@ module Proxy
   module DHCP
     module EfficientIp
       class Provider < ::Proxy::DHCP::Server
-        alias_method :find_record_by_ip, :find_record
 
         def initialize(api, managed_subnets)
           @managed_subnets = managed_subnets

@@ -95,7 +95,11 @@ module Proxy
 
           subnet = find_subnet(subnet_address)
           record = api.find_record(ip_address)
-          record ? build_reservation(subnet, record) : nil
+
+          if !record.nil and !subnet.nil
+            build_reservation(subnet, record)
+          end
+          #record ? build_reservation(subnet, record) : nil
         end
 
         def find_record_by_mac(subnet_address, mac_address)
@@ -106,24 +110,37 @@ module Proxy
           record ? build_reservation(subnet, record) : nil
         end
 
-        def find_records_by_ip(subnet_address, ip_or_mac)
-          logger.debug("Finding records by address: #{ip_or_mac}")
+        def find_records_by_ip(subnet_address, ip_address)
+          logger.debug("Finding records by address: #{ip_address}")
 
-          records = api.find_records(ip_or_mac)
-          return [] if records.empty?
+          records = api.find_records(ip_address)
+          logger.debug("DEBUG #{records.inspect}")
+
+          if records.nil?
+            return []
+          end
+
           subnet = find_subnet(subnet_address)
 
-          #records.filter_map do |record|
-          matching_record = records.select{|record|}
-          record_result   = matching_record.map{|record|}
-            reserv = build_reservation(subnet, record_result)
-            reserv unless reserv.nil?
-          #end
+          record = records.select{|record| record['hostaddr'].eql?(ip_address)}
+          logger.debug("Building reservation with record: #{record[0]['hostaddr']}")
+
+          reserv = build_reservation(subnet, record[0])
+          reserv unless reserv.nil?
         end
 
         def add_record(params)
           logger.debug("Adding record with: #{params.to_s}")
           api.add_record(params)
+
+          #Wait for DHCP server to update
+          loop do
+            static = api.get_dhcp_static(params['ip'])
+            break if static.empty?
+            logger.debug("DHCP Server response for #{params['ip']} is Delayed Create :: #{static[0]['delayed_create_time']} ")
+            break if static[0]['delayed_create_time'].to_i == 0
+            sleep 10
+          end
         end
 
         def del_record(record)

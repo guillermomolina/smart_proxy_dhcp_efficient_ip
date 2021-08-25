@@ -106,6 +106,13 @@ module Proxy
           end
         end
 
+        def get_dhcp_static(an_address)
+          result = connection.dhcp_static_list(
+            where: "dhcphost_addr='#{an_address}'"
+          )
+          parse(result.body)
+        end
+
         def add_record(params)
           subnet = find_subnet(params['network'])
 

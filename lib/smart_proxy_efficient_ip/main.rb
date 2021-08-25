@@ -107,14 +107,25 @@ module Proxy
 
           subnet = find_subnet(subnet_address)
           record = api.find_record(mac_address)
-          record ? build_reservation(subnet, record) : nil
+          #record ? build_reservation(subnet, record) : nil
+
+          if !record.nil?
+            opts = { hostname: record['name'] }
+
+            return Proxy::DHCP::Reservation.new(
+              record['name'],
+              record['hostaddr'],
+              record['mac_addr'],
+              subnet,
+              opts
+            )
+          end
         end
 
         def find_records_by_ip(subnet_address, ip_address)
           logger.debug("Finding records by address: #{ip_address}")
 
           records = api.find_records(ip_address)
-          logger.debug("DEBUG #{records.inspect}")
 
           if records.nil?
             return []
@@ -133,12 +144,18 @@ module Proxy
           logger.debug("Adding record with: #{params.to_s}")
           api.add_record(params)
 
+          dhcp_exists = 0
           #Wait for DHCP server to update
           loop do
             static = api.get_dhcp_static(params['ip'])
-            break if static.empty?
-            logger.debug("DHCP Server response for #{params['ip']} is Delayed Create :: #{static[0]['delayed_create_time']} ")
-            break if static[0]['delayed_create_time'].to_i == 0
+            break if static.nil?
+              logger.debug("DHCP Server response for #{params['ip']} is Delayed Create :: #{static[0]['delayed_create_time']} ")
+              static.each do |ipaddr|
+                if ipaddr['delayed_create_time'].to_i == 0
+                  dhcp_exists = 1
+                end
+              end
+            break if dhcp_exists == 1
             sleep 10
           end
         end
@@ -158,7 +175,9 @@ module Proxy
           subnet = get_subnet(network_address)
           record = api.find_record(mac)
 
-          api.delete_record(record["site_name"], record["hostaddr"])
+          if !record.nil? and !subnet.nil?
+            api.delete_record(record["site_name"], record["hostaddr"])
+          end
         end
 
         private
@@ -172,10 +191,6 @@ module Proxy
           Proxy::DHCP::Reservation.new(
             record['name'], record['hostaddr'], record['mac_addr'], subnet, opts
           )
-        end
-
-        def build_subnet(subnet_address, network_mask)
-
         end
 
       end

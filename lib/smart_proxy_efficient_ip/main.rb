@@ -96,10 +96,19 @@ module Proxy
           subnet = find_subnet(subnet_address)
           record = api.find_record(ip_address)
 
-          if !record.nil and !subnet.nil
-            build_reservation(subnet, record)
+          if !record.nil
+            ops = { hostname: record['name'] }
+
+            return Proxy::DHCP::Reservation.new(
+              record['name'],
+              record['hostaddr'],
+              record['mac_addr'],
+              subnet,
+              opts
+            )
+
+            #build_reservation(subnet, record)
           end
-          #record ? build_reservation(subnet, record) : nil
         end
 
         def find_record_by_mac(subnet_address, mac_address)

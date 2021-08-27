@@ -75,6 +75,7 @@ module Proxy
         end
 
         def unused_ip(network_address, _, from_ip_address, to_ip_address)
+          logger.debug("DEBUG :: invoking unused_ip")
           logger.debug("Searching first unused ip from:#{from_ip_address} to:#{to_ip_address}")
 
           free_ip =  api.find_free(network_address, from_ip_address, to_ip_address)
@@ -82,6 +83,7 @@ module Proxy
         end
 
         def find_record(subnet_address, ip_or_mac_address)
+          logger.debug("DEBUG :: invoking find_record")
           logger.debug("Finding record for subnet:#{subnet_address} and address:#{ip_or_mac_address}")
 
           subnet = find_subnet(subnet_address)
@@ -91,15 +93,16 @@ module Proxy
         end
 
         def find_record_by_ip(subnet_address, ip_address)
+          logger.debug("DEBUG :: invoking find_record_by_ip")
           logger.debug("Finding record for subnet:#{subnet_address} and address:#{ip_or_mac_address}")
 
           subnet = find_subnet(subnet_address)
           record = api.find_record(ip_address)
 
           if !record.nil
-            ops = { hostname: record['name'] }
+            opts = { "hostname" => record['name'] }
 
-            return Proxy::DHCP::Reservation.new(
+            reserv = Proxy::DHCP::Reservation.new(
               record['name'],
               record['hostaddr'],
               record['mac_addr'],
@@ -107,11 +110,15 @@ module Proxy
               opts
             )
 
+            some_val = reserv.to_json()
+            logger.debug("DEBUG :: #{some_val}")
+            return reserv
             #build_reservation(subnet, record)
           end
         end
 
         def find_record_by_mac(subnet_address, mac_address)
+          logger.debug("DEBUG :: invoking find_record_by_mac")
           logger.debug("Finding record for subnet:#{subnet_address} and mac address:#{mac_address}")
 
           subnet = find_subnet(subnet_address)
@@ -119,33 +126,44 @@ module Proxy
           #record ? build_reservation(subnet, record) : nil
 
           if !record.nil?
-            opts = { hostname: record['name'] }
+            opts = { "hostname" => record['name'] }
 
-            return Proxy::DHCP::Reservation.new(
+            reserv = Proxy::DHCP::Reservation.new(
               record['name'],
               record['hostaddr'],
               record['mac_addr'],
               subnet,
               opts
             )
+
+            some_val = reserv.to_json()
+            logger.debug("DEBUG :: Calling to_json()  #{some_val}")
+            return reserv
+            #build_reservation(subnet, record)
           end
         end
 
         def find_records_by_ip(subnet_address, ip_address)
+          logger.debug("DEBUG :: invoking find_records_by_ip")
           logger.debug("Finding records by address: #{ip_address}")
 
           records = api.find_records(ip_address)
-
+          logger.debug("DEBUG :: Returning records #{records}")
           if records.nil?
             return []
           end
 
           subnet = find_subnet(subnet_address)
 
-          record = records.select{|record| record['hostaddr'].eql?(ip_address)}
-          logger.debug("Building reservation with record: #{record[0]['hostaddr']}")
+          record = records.find{|r| r['hostaddr'].eql?(ip_address)}
+          #logger.debug("#{record}")
+          logger.debug("Building reservation with record: #{record['hostaddr']}")
 
-          reserv = build_reservation(subnet, record[0])
+          reserv = build_reservation(subnet, record)
+
+          some_val = reserv.to_json()
+          logger.debug("DEBUG :: #{some_val}")
+          logger.debug("DEBUG Reservation created: #{reserv}")
           reserv unless reserv.nil?
         end
 
@@ -196,7 +214,7 @@ module Proxy
         def build_reservation(subnet, record)
           return nil if record.empty? || record['hostaddr'].empty? || record['mac_addr'].empty?
 
-          opts = { hostname: record['name'] }
+          opts = { "hostname" => record['name'] }
           Proxy::DHCP::Reservation.new(
             record['name'], record['hostaddr'], record['mac_addr'], subnet, opts
           )

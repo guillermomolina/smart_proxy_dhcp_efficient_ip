@@ -139,7 +139,6 @@ module Proxy
             some_val = reserv.to_json()
             logger.debug("DEBUG :: Calling to_json()  #{some_val}")
             return reserv
-            #build_reservation(subnet, record)
           end
         end
 
@@ -149,22 +148,20 @@ module Proxy
 
           records = api.find_records(ip_address)
           logger.debug("DEBUG :: Returning records #{records}")
-          if records.nil?
-            return []
-          end
+
+          return [] if records.nil?
 
           subnet = find_subnet(subnet_address)
+          to_return = records.map{|r| build_reservation(subnet,r)}
+          logger.debug("#{to_return}")
+          to_return.compact
+          #record = records.find{|r| r['hostaddr'].eql?(ip_address)}
+          #logger.debug("Building reservation with record: #{record['hostaddr']}")
 
-          record = records.find{|r| r['hostaddr'].eql?(ip_address)}
-          #logger.debug("#{record}")
-          logger.debug("Building reservation with record: #{record['hostaddr']}")
+          #reserv = build_reservation(subnet, record)
 
-          reserv = build_reservation(subnet, record)
-
-          some_val = reserv.to_json()
-          logger.debug("DEBUG :: #{some_val}")
-          logger.debug("DEBUG Reservation created: #{reserv}")
-          reserv unless reserv.nil?
+          #logger.debug("DEBUG Reservation created: #{reserv}")
+          #reserv unless reserv.nil?
         end
 
         def add_record(params)
@@ -212,9 +209,9 @@ module Proxy
         attr_reader :api, :managed_subnets
 
         def build_reservation(subnet, record)
-          return nil if record.empty? || record['hostaddr'].empty? || record['mac_addr'].empty?
+          return nil if record.nil? || record['hostaddr'].empty? || record['mac_addr'].empty?
 
-          opts = { "hostname" => record['name'] }
+          opts = { :hostname => record['name'] }
           Proxy::DHCP::Reservation.new(
             record['name'], record['hostaddr'], record['mac_addr'], subnet, opts
           )

@@ -7,6 +7,9 @@ module Proxy
       class Plugin < ::Proxy::Provider
         plugin :dhcp_efficient_ip, ::Proxy::DHCP::EfficientIp::VERSION
 
+        capability 'dhcp_filename_ipv4'
+        capability 'dhcp_filename_hostname'
+
         validate_presence :username, :password, :server_id, :address_type
 
         # Settings listed under default_settings are required.

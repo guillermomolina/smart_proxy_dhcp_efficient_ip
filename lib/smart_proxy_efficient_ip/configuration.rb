@@ -13,7 +13,8 @@ module Proxy
             ::SOLIDserver::SOLIDserver.new(
               settings[:server_id],
               settings[:username],
-              settings[:password]
+              settings[:password],
+              logger: ::Proxy::LogBuffer::Decorator.instance 
             )
           end)
 

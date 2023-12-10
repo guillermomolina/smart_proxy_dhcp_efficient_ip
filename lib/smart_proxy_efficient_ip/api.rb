@@ -108,7 +108,8 @@ module Proxy
 
         def get_dhcp_static(an_address)
           result = connection.dhcp_static_list(
-            where: "dhcphost_addr='#{an_address}' and dhcp_type!='vdhcp'"
+            # where: "dhcphost_addr='#{an_address}' and dhcp_type!='vdhcp'"
+            where: "dhcphost_addr='#{an_address}'"
           )
           parse(result.body)
         end
@@ -122,6 +123,24 @@ module Proxy
             mac_addr: params['mac'],
             name: params['name'],
             ip_class_parameters: "dhcpstatic=1&dns_update=1&persistent_dns_rr=1&use_ipam_name=1"
+          )
+        end
+
+        def add_dhcp_options(dhcp_static, params)
+          connection.dhcp_option_add(
+            dhcpoption_type: 'host',
+            dhcphost_id: dhcp_static['dhcphost_id'].to_i,
+            dhcpoption_name: 'option bootfile-name',
+            dhcpoption_value: params['filename'],
+            add_flag: 'new_only'
+          )
+
+          connection.dhcp_option_add(
+            dhcpoption_type: 'host',
+            dhcphost_id: dhcp_static['dhcphost_id'].to_i,
+            dhcpoption_name: 'option server.next-server',
+            dhcpoption_value: params['nextServer'],
+            add_flag: 'new_only'
           )
         end
 

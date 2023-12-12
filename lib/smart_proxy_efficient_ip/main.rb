@@ -94,7 +94,7 @@ module Proxy
 
         def find_record_by_ip(subnet_address, ip_address)
           logger.debug("DEBUG :: invoking find_record_by_ip")
-          logger.debug("Finding record for subnet:#{subnet_address} and address:#{ip_or_mac_address}")
+          logger.debug("Finding record for subnet:#{subnet_address} and address:#{ip_address}")
 
           subnet = find_subnet(subnet_address)
           record = api.find_record(ip_address)
@@ -169,6 +169,7 @@ module Proxy
           api.add_record(params)
 
           dhcp_exists = 0
+          static_ipaddr = nil
           #Wait for DHCP server to update
           loop do
             static = api.get_dhcp_static(params['ip'])
@@ -176,11 +177,17 @@ module Proxy
               logger.debug("DHCP Server response for #{params['ip']} is Delayed Create :: #{static[0]['delayed_create_time']} ")
               static.each do |ipaddr|
                 if ipaddr['delayed_create_time'].to_i == 0
+                  static_ipaddr = ipaddr
                   dhcp_exists = 1
                 end
               end
             break if dhcp_exists == 1
             sleep 10
+          end
+
+          if !static_ipaddr.nil?
+            logger.debug("Adding dhcop options to: #{static_ipaddr.to_s}")
+            api.add_dhcp_options(static_ipaddr, params)
           end
         end
 

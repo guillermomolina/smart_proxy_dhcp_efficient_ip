@@ -108,7 +108,6 @@ module Proxy
 
         def get_dhcp_static(an_address)
           result = connection.dhcp_static_list(
-            # where: "dhcphost_addr='#{an_address}' and dhcp_type!='vdhcp'"
             where: "dhcphost_addr='#{an_address}'"
           )
           parse(result.body)

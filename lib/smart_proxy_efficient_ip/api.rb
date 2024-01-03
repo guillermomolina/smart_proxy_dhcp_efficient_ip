@@ -132,7 +132,7 @@ module Proxy
             dhcphost_id: dhcp_static['dhcphost_id'].to_i,
             dhcpoption_name: 'option bootfile-name',
             dhcpoption_value: params['filename'],
-            add_flag: 'new_only'
+            add_flag: 'new_edit'
           )
 
           connection.dhcp_option_add(
@@ -140,7 +140,7 @@ module Proxy
             dhcphost_id: dhcp_static['dhcphost_id'].to_i,
             dhcpoption_name: 'option server.next-server',
             dhcpoption_value: params['nextServer'],
-            add_flag: 'new_only'
+            add_flag: 'new_edit'
           )
         end
 

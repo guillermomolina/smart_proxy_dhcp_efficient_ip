@@ -1,3 +1,5 @@
+require "resolv"
+
 module Proxy
   module DHCP
     module EfficientIp
@@ -147,11 +149,12 @@ module Proxy
           end
 
           if params['nextServer']
+            nextServer = Resolv.getaddress(params['nextServer'])
             connection.dhcp_option_add(
               dhcpoption_type: 'host',
               dhcphost_id: dhcp_static['dhcphost_id'].to_i,
               dhcpoption_name: 'option server.next-server',
-              dhcpoption_value: params['nextServer'],
+              dhcpoption_value: nextServer,
               add_flag: 'new_edit'
             )
           end

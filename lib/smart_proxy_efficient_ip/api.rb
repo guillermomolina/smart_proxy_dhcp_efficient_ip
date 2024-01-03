@@ -126,6 +126,16 @@ module Proxy
         end
 
         def add_dhcp_options(dhcp_static, params)
+          if params['hostname']
+            connection.dhcp_option_add(
+              dhcpoption_type: 'host',
+              dhcphost_id: dhcp_static['dhcphost_id'].to_i,
+              dhcpoption_name: 'option host-name',
+              dhcpoption_value: params['hostname'],
+              add_flag: 'new_edit'
+            )
+          end
+
           if params['filename']
             connection.dhcp_option_add(
               dhcpoption_type: 'host',

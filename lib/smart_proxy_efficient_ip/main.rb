@@ -177,8 +177,10 @@ module Proxy
               logger.debug("DHCP Server response for #{params['ip']} is Delayed Create :: #{static[0]['delayed_create_time']} ")
               static.each do |ipaddr|
                 if ipaddr['delayed_create_time'].to_i == 0
-                  static_ipaddr = ipaddr
                   dhcp_exists = 1
+                end
+                if ipaddr['dhcp_type'] == "vdhcp"
+                  static_ipaddr = ipaddr
                 end
               end
             break if dhcp_exists == 1

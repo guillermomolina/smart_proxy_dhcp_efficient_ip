@@ -126,21 +126,25 @@ module Proxy
         end
 
         def add_dhcp_options(dhcp_static, params)
-          connection.dhcp_option_add(
-            dhcpoption_type: 'host',
-            dhcphost_id: dhcp_static['dhcphost_id'].to_i,
-            dhcpoption_name: 'option bootfile-name',
-            dhcpoption_value: params['filename'],
-            add_flag: 'new_edit'
-          )
+          if params['filename']
+            connection.dhcp_option_add(
+              dhcpoption_type: 'host',
+              dhcphost_id: dhcp_static['dhcphost_id'].to_i,
+              dhcpoption_name: 'option bootfile-name',
+              dhcpoption_value: params['filename'],
+              add_flag: 'new_edit'
+            )
+          end
 
-          connection.dhcp_option_add(
-            dhcpoption_type: 'host',
-            dhcphost_id: dhcp_static['dhcphost_id'].to_i,
-            dhcpoption_name: 'option server.next-server',
-            dhcpoption_value: params['nextServer'],
-            add_flag: 'new_edit'
-          )
+          if params['nextServer']
+            connection.dhcp_option_add(
+              dhcpoption_type: 'host',
+              dhcphost_id: dhcp_static['dhcphost_id'].to_i,
+              dhcpoption_name: 'option server.next-server',
+              dhcpoption_value: params['nextServer'],
+              add_flag: 'new_edit'
+            )
+          end
         end
 
         def delete_record(site_name, ip_to_delete)

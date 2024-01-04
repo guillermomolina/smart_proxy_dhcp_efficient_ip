@@ -1,21 +1,34 @@
-FROM ubuntu:latest
+FROM debian:bookworm-slim
 
-RUN apt update
-RUN apt install -y build-essential ruby-full git
-RUN gem install bundler
+ARG FOREMAN_VERSION
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+			build-essential ruby-full git libkrb5-dev && \
+    apt-get autoremove -y && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
-RUN git clone --single-branch --branch 2.3-stable https://github.com/theforeman/smart-proxy.git
-COPY ./config/docker_smart-proxy_settings /code/smart-proxy/config
+RUN git clone --single-branch --branch ${FOREMAN_VERSION}-stable https://github.com/theforeman/smart-proxy.git
 COPY . /code/smart_proxy_efficient_ip
-RUN gem install json -v '~> 1.8'
-RUN gem install rest-client -v '~> 2.0'
-RUN gem install --local /code/smart_proxy_efficient_ip/vendor/SOLIDserver-0.0.11.gem
-WORKDIR /code/smart-proxy
-RUN echo ':http_port: 4567' > config/settings.yml
-RUN echo 'gem "smart_proxy_efficient_ip", path: "../smart_proxy_efficient_ip"' > bundler.d/smart_proxy_efficient_ip.rb
-RUN bundle install --without test development libvirt journald windows krb5
 
-EXPOSE 4567
+RUN gem install \
+        bundler xmlrpc rkerberos
+
+WORKDIR /code/smart-proxy
+RUN mv config /etc/foreman-proxy && \
+    ln -s /etc/foreman-proxy config  && \
+    echo ':http_port: 9000' > config/settings.yml
+COPY ./config/docker_smart-proxy_settings/settings.d /etc/foreman-proxy/settings.d
+
+RUN echo 'gem "smart_proxy_efficient_ip", path: "../smart_proxy_efficient_ip"' > bundler.d/smart_proxy_efficient_ip.rb && \
+    echo 'gem "SOLIDserver", git: "https://gitlab.com/guillermoadrianmolina/ruby-gem-efficientIP.git"' > bundler.d/SOLIDserver.rb
+
+RUN bundle config set --local without 'test development libvirt journald windows krb5' && \
+    bundle install
+
+EXPOSE 9000
 
 CMD ["./bin/smart-proxy"]

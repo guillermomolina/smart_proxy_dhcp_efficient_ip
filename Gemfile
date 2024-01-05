@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'SOLIDserver', git: 'https://gitlab.com/efficientip/ruby-gem-efficientIP.git'
+gem 'SOLIDserver', git: 'https://github.com/guillermomolina/ruby-gem-efficientIP.git', branch: 'gam-new-features'
 
 group :development do
   gem 'mocha'

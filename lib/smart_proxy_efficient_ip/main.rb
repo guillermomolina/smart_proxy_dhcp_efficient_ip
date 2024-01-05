@@ -186,7 +186,7 @@ module Proxy
           end
 
           if !static_ipaddr.nil?
-            logger.debug("Adding dhcop options to: #{static_ipaddr.to_s}")
+            logger.debug("Adding dhcp options to: #{static_ipaddr.to_s}")
             api.add_dhcp_options(static_ipaddr, params)
           end
         end

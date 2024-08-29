@@ -23,7 +23,7 @@ RUN mv config /etc/foreman-proxy && \
     echo ':http_port: 9000' > config/settings.yml
 COPY ./config/docker_smart-proxy_settings/settings.d /etc/foreman-proxy/settings.d
 
-RUN echo 'gem "smart_proxy_efficient_ip", path: "../smart_proxy_efficient_ip"' > bundler.d/smart_proxy_efficient_ip.rb && \
+RUN echo 'gem "smart_proxy_efficient_ip", path: "/code/smart_proxy_efficient_ip"' > bundler.d/smart_proxy_efficient_ip.rb && \
     echo 'gem "SOLIDserver", git: "https://github.com/guillermomolina/ruby-gem-efficientIP.git", branch: "gam-new-features"' > bundler.d/SOLIDserver.rb
 
 RUN bundle config set --local without 'test development libvirt journald windows krb5' && \
